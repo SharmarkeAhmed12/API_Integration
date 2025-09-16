@@ -1,0 +1,83 @@
+2025-09-11 12:23:03,526 - INFO - Weather data inserted for Wajir: 31.72°C, 34%, broken clouds
+2025-09-11 12:23:04,634 - INFO - Weather data inserted for Mumbai: 28.33°C, 66%, few clouds
+2025-09-11 12:39:21,294 - INFO - Weather data inserted for Mumbai: 28.55°C, 66%, few clouds
+2025-09-11 12:39:22,547 - INFO - Weather data inserted for Alaska: 6.99°C, 99%, light rain
+2025-09-11 12:43:37,836 - INFO - Weather data inserted for Melbourne: 24.12°C, 88%, broken clouds
+2025-09-16 10:02:33,597 - weather_pipeline - INFO - Starting processing for 10 cities: Nagasaki, Toronto, Hiroshima, Meru, London, Lagos, Ankara, Manchester, Seattle, Washington DC
+2025-09-16 10:02:33,623 - weather_pipeline - INFO - Processing city: Nagasaki
+2025-09-16 10:02:34,777 - weather_pipeline - INFO - Saved raw data for Nagasaki to data lake: datalake/raw/2025/09/16/Nagasaki_20250916_100234.json
+2025-09-16 10:02:34,811 - weather_pipeline - ERROR - Failed to insert data for Nagasaki: table weather_data has no column named country
+2025-09-16 10:02:35,814 - weather_pipeline - INFO - Processing city: Toronto
+2025-09-16 10:02:36,907 - weather_pipeline - INFO - Saved raw data for Toronto to data lake: datalake/raw/2025/09/16/Toronto_20250916_100236.json
+2025-09-16 10:02:36,907 - weather_pipeline - ERROR - Failed to insert data for Toronto: table weather_data has no column named country
+2025-09-16 10:02:37,917 - weather_pipeline - INFO - Processing city: Hiroshima
+2025-09-16 10:02:38,996 - weather_pipeline - INFO - Saved raw data for Hiroshima to data lake: datalake/raw/2025/09/16/Hiroshima_20250916_100238.json
+2025-09-16 10:02:39,003 - weather_pipeline - ERROR - Failed to insert data for Hiroshima: table weather_data has no column named country
+2025-09-16 10:02:40,006 - weather_pipeline - INFO - Processing city: Meru
+2025-09-16 10:02:41,155 - weather_pipeline - INFO - Saved raw data for Meru to data lake: datalake/raw/2025/09/16/Meru_20250916_100241.json
+2025-09-16 10:02:41,155 - weather_pipeline - ERROR - Failed to insert data for Meru: table weather_data has no column named country
+2025-09-16 10:02:42,167 - weather_pipeline - INFO - Processing city: London
+2025-09-16 10:02:43,223 - weather_pipeline - INFO - Saved raw data for London to data lake: datalake/raw/2025/09/16/London_20250916_100243.json
+2025-09-16 10:02:43,223 - weather_pipeline - ERROR - Failed to insert data for London: table weather_data has no column named country
+2025-09-16 10:02:44,234 - weather_pipeline - INFO - Processing city: Lagos
+2025-09-16 10:02:45,354 - weather_pipeline - INFO - Saved raw data for Lagos to data lake: datalake/raw/2025/09/16/Lagos_20250916_100245.json
+2025-09-16 10:02:45,359 - weather_pipeline - ERROR - Failed to insert data for Lagos: table weather_data has no column named country
+2025-09-16 10:02:46,361 - weather_pipeline - INFO - Processing city: Ankara
+2025-09-16 10:02:47,452 - weather_pipeline - INFO - Saved raw data for Ankara to data lake: datalake/raw/2025/09/16/Ankara_20250916_100247.json
+2025-09-16 10:02:47,469 - weather_pipeline - ERROR - Failed to insert data for Ankara: table weather_data has no column named country
+2025-09-16 10:02:48,476 - weather_pipeline - INFO - Processing city: Manchester
+2025-09-16 10:02:49,693 - weather_pipeline - INFO - Saved raw data for Manchester to data lake: datalake/raw/2025/09/16/Manchester_20250916_100249.json
+2025-09-16 10:02:49,708 - weather_pipeline - ERROR - Failed to insert data for Manchester: table weather_data has no column named country
+2025-09-16 10:02:50,715 - weather_pipeline - INFO - Processing city: Seattle
+2025-09-16 10:02:51,839 - weather_pipeline - INFO - Saved raw data for Seattle to data lake: datalake/raw/2025/09/16/Seattle_20250916_100251.json
+2025-09-16 10:02:51,849 - weather_pipeline - ERROR - Failed to insert data for Seattle: table weather_data has no column named country
+2025-09-16 10:02:52,854 - weather_pipeline - INFO - Processing city: Washington DC
+2025-09-16 10:02:53,945 - weather_pipeline - INFO - Saved raw data for Washington DC to data lake: datalake/raw/2025/09/16/Washington DC_20250916_100253.json
+2025-09-16 10:02:53,945 - weather_pipeline - ERROR - Failed to insert data for Washington DC: table weather_data has no column named country
+2025-09-16 10:02:54,959 - weather_pipeline - INFO - Processing complete. Success: 10, Failures: 0
+2025-09-16 10:06:02,832 - weather_pipeline - INFO - Starting processing for 6 cities: Nagasaki, Hiroshima, toronto, Ankara, London, Manchester
+2025-09-16 10:06:02,836 - weather_pipeline - INFO - Processing city: Nagasaki
+2025-09-16 10:06:03,929 - weather_pipeline - INFO - Saved raw data for Nagasaki to data lake: datalake/raw/2025/09/16/Nagasaki_20250916_100603.json
+2025-09-16 10:06:03,929 - weather_pipeline - ERROR - Failed to insert data for Nagasaki: table weather_data has no column named latitude
+2025-09-16 10:06:04,942 - weather_pipeline - INFO - Processing city: Hiroshima
+2025-09-16 10:06:05,997 - weather_pipeline - INFO - Saved raw data for Hiroshima to data lake: datalake/raw/2025/09/16/Hiroshima_20250916_100605.json
+2025-09-16 10:06:05,997 - weather_pipeline - ERROR - Failed to insert data for Hiroshima: table weather_data has no column named latitude
+2025-09-16 10:06:07,005 - weather_pipeline - INFO - Processing city: toronto
+2025-09-16 10:06:08,034 - weather_pipeline - INFO - Saved raw data for toronto to data lake: datalake/raw/2025/09/16/toronto_20250916_100608.json
+2025-09-16 10:06:08,050 - weather_pipeline - ERROR - Failed to insert data for toronto: table weather_data has no column named latitude
+2025-09-16 10:06:09,052 - weather_pipeline - INFO - Processing city: Ankara
+2025-09-16 10:06:10,227 - weather_pipeline - INFO - Saved raw data for Ankara to data lake: datalake/raw/2025/09/16/Ankara_20250916_100610.json
+2025-09-16 10:06:10,233 - weather_pipeline - ERROR - Failed to insert data for Ankara: table weather_data has no column named latitude
+2025-09-16 10:06:11,245 - weather_pipeline - INFO - Processing city: London
+2025-09-16 10:06:12,315 - weather_pipeline - INFO - Saved raw data for London to data lake: datalake/raw/2025/09/16/London_20250916_100612.json
+2025-09-16 10:06:12,332 - weather_pipeline - ERROR - Failed to insert data for London: table weather_data has no column named latitude
+2025-09-16 10:06:13,336 - weather_pipeline - INFO - Processing city: Manchester
+2025-09-16 10:06:14,330 - weather_pipeline - INFO - Saved raw data for Manchester to data lake: datalake/raw/2025/09/16/Manchester_20250916_100614.json
+2025-09-16 10:06:14,337 - weather_pipeline - ERROR - Failed to insert data for Manchester: table weather_data has no column named latitude
+2025-09-16 10:06:15,341 - weather_pipeline - INFO - Processing complete. Success: 6, Failures: 0
+2025-09-16 11:51:13,630 - weather_pipeline - INFO - Starting processing for 2 cities: Kathmandu, Toronto
+2025-09-16 11:51:13,638 - weather_pipeline - INFO - Processing city: Kathmandu
+2025-09-16 11:51:15,272 - weather_pipeline - INFO - Saved raw data for Kathmandu to data lake: datalake/raw/2025/09/16/Kathmandu_20250916_115115.json
+2025-09-16 11:51:15,284 - weather_pipeline - ERROR - Failed to insert data for Kathmandu: table weather_data has no column named latitude
+2025-09-16 11:51:16,295 - weather_pipeline - INFO - Processing city: Toronto
+2025-09-16 11:51:17,900 - weather_pipeline - INFO - Saved raw data for Toronto to data lake: datalake/raw/2025/09/16/Toronto_20250916_115117.json
+2025-09-16 11:51:17,909 - weather_pipeline - ERROR - Failed to insert data for Toronto: table weather_data has no column named latitude
+2025-09-16 11:51:18,911 - weather_pipeline - INFO - Processing complete. Success: 2, Failures: 0
+2025-09-16 12:19:07,187 - weather_pipeline - INFO - Starting processing for 2 cities: Kathmandu, Toronto
+2025-09-16 12:19:07,201 - weather_pipeline - INFO - Processing city: Kathmandu
+2025-09-16 12:19:08,891 - weather_pipeline - INFO - Saved raw data for Kathmandu to data lake: datalake/raw/2025/09/16/Kathmandu_20250916_121908.json
+2025-09-16 12:19:08,891 - weather_pipeline - ERROR - Failed to insert data for Kathmandu: table weather_data has no column named latitude
+2025-09-16 12:19:09,907 - weather_pipeline - INFO - Processing city: Toronto
+2025-09-16 12:19:11,632 - weather_pipeline - INFO - Saved raw data for Toronto to data lake: datalake/raw/2025/09/16/Toronto_20250916_121911.json
+2025-09-16 12:19:11,632 - weather_pipeline - ERROR - Failed to insert data for Toronto: table weather_data has no column named latitude
+2025-09-16 12:19:12,638 - weather_pipeline - INFO - Processing complete. Success: 2, Failures: 0
+2025-09-16 12:19:38,936 - weather_pipeline - INFO - Starting processing for 1 cities: Kathmandu
+2025-09-16 12:19:38,947 - weather_pipeline - INFO - Processing city: Kathmandu
+2025-09-16 12:19:40,617 - weather_pipeline - INFO - Saved raw data for Kathmandu to data lake: datalake/raw/2025/09/16/Kathmandu_20250916_121940.json
+2025-09-16 12:19:40,619 - weather_pipeline - ERROR - Failed to insert data for Kathmandu: table weather_data has no column named feels_like
+2025-09-16 12:19:41,622 - weather_pipeline - INFO - Processing complete. Success: 1, Failures: 0
+2025-09-16 12:21:32,502 - weather_pipeline - INFO - Starting processing for 1 cities: Kathmandu
+2025-09-16 12:21:32,507 - weather_pipeline - INFO - Processing city: Kathmandu
+2025-09-16 12:21:34,190 - weather_pipeline - INFO - Saved raw data for Kathmandu to data lake: datalake/raw/2025/09/16/Kathmandu_20250916_122134.json
+2025-09-16 12:21:34,193 - weather_pipeline - ERROR - Failed to insert data for Kathmandu: table weather_data has no column named pressure
+2025-09-16 12:21:35,198 - weather_pipeline - INFO - Processing complete. Success: 1, Failures: 0

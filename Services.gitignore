@@ -1,0 +1,16 @@
+# Python
+__pycache__/
+*.pyc
+
+# SQLite database
+*.db
+
+# Logs
+logs/
+*.log
+
+# Env file
+.env
+
+# Raw data
+datalake/

@@ -1,0 +1,46 @@
+{
+  "coord": {
+    "lon": 32.8543,
+    "lat": 39.9199
+  },
+  "weather": [
+    {
+      "id": 800,
+      "main": "Clear",
+      "description": "clear sky",
+      "icon": "01d"
+    }
+  ],
+  "base": "stations",
+  "main": {
+    "temp": 20.11,
+    "feels_like": 19.51,
+    "temp_min": 20.11,
+    "temp_max": 20.51,
+    "pressure": 1015,
+    "humidity": 51,
+    "sea_level": 1015,
+    "grnd_level": 896
+  },
+  "visibility": 10000,
+  "wind": {
+    "speed": 0.45,
+    "deg": 327,
+    "gust": 0.89
+  },
+  "clouds": {
+    "all": 0
+  },
+  "dt": 1758006223,
+  "sys": {
+    "type": 2,
+    "id": 267643,
+    "country": "TR",
+    "sunrise": 1757993429,
+    "sunset": 1758038199
+  },
+  "timezone": 10800,
+  "id": 323786,
+  "name": "Ankara",
+  "cod": 200
+}
