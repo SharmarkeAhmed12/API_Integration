@@ -6,3 +6,12 @@ This project fetches real-time weather data from the **OpenWeather API**, stores
 
 ## 📂 Project Structure
 
+.
+├── datalake/ # Raw API JSON responses stored by date
+├── weather_data.db # SQLite database
+├── weather_pipeline.py # Main ingestion pipeline script
+├── visualize.py # Streamlit dashboard
+├── .gitignore # Git ignore file
+├── README.md # Project documentation
+└── requirements.txt # Dependencies
+
