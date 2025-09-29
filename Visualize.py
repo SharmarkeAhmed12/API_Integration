@@ -2,10 +2,16 @@ import streamlit as st
 import sqlite3
 import requests
 import pandas as pd
-import plotly.express as px
 import plotly.graph_objects as go
 from datetime import datetime, timedelta, timezone
 from plotly.subplots import make_subplots
+
+# Try to import Plotly with fallback
+try:
+    import plotly.express as px
+    PLOTLY_AVAILABLE = True
+except Exception:
+    PLOTLY_AVAILABLE = False
 
 # OpenWeather API key
 API_KEY = "eea5f0d577d8539c9f2732e5d1f735d5"
