@@ -368,3 +368,12 @@ sqlite3.OperationalError: no such column: weather_description
 2025-12-13 11:42:39,907 - weather_pipeline - INFO - Processing city: Kampala
 2025-12-13 11:42:42,661 - weather_pipeline - INFO - Raw data saved: c:\API_Integration\datalake\raw\2025/12/13\Kampala_20251213_084242_650.json
 2025-12-13 11:42:42,675 - weather_pipeline - INFO - Pipeline stopped cleanly
+2025-12-13 11:49:12,449 - weather_pipeline - INFO - Pipeline started for cities: London, Seattle
+2025-12-13 11:49:12,450 - weather_pipeline - INFO - === New ingestion cycle at 2025-12-13T08:49:12.450061+00:00 ===
+2025-12-13 11:49:12,450 - weather_pipeline - INFO - Processing city: London
+2025-12-13 11:49:16,305 - weather_pipeline - INFO - Raw data saved: c:\API_Integration\datalake\raw\2025/12/13\London_20251213_084916_291.json
+2025-12-13 11:49:16,312 - weather_pipeline - INFO - Weather updated for London
+2025-12-13 11:49:17,313 - weather_pipeline - INFO - Processing city: Seattle
+2025-12-13 11:49:18,825 - weather_pipeline - INFO - Raw data saved: c:\API_Integration\datalake\raw\2025/12/13\Seattle_20251213_084918_822.json
+2025-12-13 11:49:18,828 - weather_pipeline - INFO - Weather updated for Seattle
+2025-12-13 11:49:19,836 - weather_pipeline - INFO - Cycle complete. Sleeping for 86392.6 seconds
