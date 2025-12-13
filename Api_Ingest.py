@@ -1,6 +1,9 @@
 #!/usr/bin/env python3
 """
-Weather ingestion pipeline - interactive + daily updates with history tracking.
+Weather ingestion pipeline
+- Interactive city input
+- Continuous 24-hour batch updates
+- Latest-state + historical tracking
 """
 
 import argparse
@@ -17,57 +20,63 @@ from datetime import datetime, timezone
 from typing import Any, Dict, List, Optional
 
 import requests
+from dotenv import load_dotenv
 
-# ---------------------------
-# Configuration
-# ---------------------------
-API_KEY = "eea5f0d577d8539c9f2732e5d1f735d5"
+# ===========================
+# Environment & Configuration
+# ===========================
+# Explicit path to your .env file
+dotenv_path = r"C:\API_Integration\Secrets.env"
+load_dotenv(dotenv_path)
+
+API_KEY = os.getenv("OPENWEATHER_API_KEY")
 if not API_KEY:
-    print("ERROR: OPENWEATHER_API_KEY must be set.", file=sys.stderr)
-    sys.exit(1)
+    raise RuntimeError("OPENWEATHER_API_KEY not found in .env file")
 
 BASE_URL = "https://api.openweathermap.org/data/2.5/weather"
-DB_PATH = "weather_data.db"
-DATA_LAKE_DIR = "datalake/raw"
+
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+DB_PATH = os.path.join(BASE_DIR, "weather_data.db")
+DATA_LAKE_DIR = os.path.join(BASE_DIR, "datalake", "raw")
+
 UPDATE_INTERVAL_SECONDS = 24 * 3600  # 24 hours
 
-# ---------------------------
+# ===========================
 # Logging
-# ---------------------------
+# ===========================
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-    handlers=[logging.FileHandler("weather_pipeline.log"), logging.StreamHandler(sys.stdout)],
+    handlers=[
+        logging.FileHandler("weather_pipeline.log"),
+        logging.StreamHandler(sys.stdout),
+    ],
 )
 logger = logging.getLogger("weather_pipeline")
 
-# ---------------------------
-# Graceful shutdown
-# ---------------------------
+# ===========================
+# Graceful Shutdown
+# ===========================
 shutdown_requested = False
+
 def _signal_handler(signum, frame):
     global shutdown_requested
-    logger.info(f"Received signal {signum}. Shutdown requested.")
+    logger.info("Received signal %s — shutting down gracefully", signum)
     shutdown_requested = True
 
 signal.signal(signal.SIGINT, _signal_handler)
 signal.signal(signal.SIGTERM, _signal_handler)
 
-# ---------------------------
-# Database utilities
-# ---------------------------
+# ===========================
+# Database Setup
+# ===========================
 def setup_database(path: str) -> sqlite3.Connection:
-    conn = sqlite3.connect(path, detect_types=sqlite3.PARSE_DECLTYPES | sqlite3.PARSE_COLNAMES)
-    conn.execute("PRAGMA journal_mode=WAL;")
-    conn.execute("PRAGMA foreign_keys=ON;")
+    conn = sqlite3.connect(path)
     cur = conn.cursor()
 
-    # Latest weather table
-    cur.execute(
-        """
+    cur.execute("""
         CREATE TABLE IF NOT EXISTS weather_data (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            city TEXT NOT NULL UNIQUE,
+            city TEXT PRIMARY KEY,
             latitude REAL,
             longitude REAL,
             temperature REAL,
@@ -88,15 +97,12 @@ def setup_database(path: str) -> sqlite3.Connection:
             timestamp TEXT,
             country TEXT
         );
-        """
-    )
+    """)
 
-    # Historical weather table
-    cur.execute(
-        """
+    cur.execute("""
         CREATE TABLE IF NOT EXISTS weather_history (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
-            city TEXT NOT NULL,
+            city TEXT,
             latitude REAL,
             longitude REAL,
             temperature REAL,
@@ -117,251 +123,194 @@ def setup_database(path: str) -> sqlite3.Connection:
             timestamp TEXT,
             country TEXT
         );
-        """
-    )
+    """)
 
     conn.commit()
     return conn
 
-# ---------------------------
-# Data lake utilities
-# ---------------------------
-def atomic_write_json(filepath: str, data: Dict[str, Any]) -> None:
-    os.makedirs(os.path.dirname(filepath), exist_ok=True)
-    fd, tmp = tempfile.mkstemp(dir=os.path.dirname(filepath), prefix=".tmp_", suffix=".json")
+# ===========================
+# Data Lake Utilities
+# ===========================
+def atomic_write_json(path: str, data: Dict[str, Any]) -> None:
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    fd, tmp = tempfile.mkstemp(dir=os.path.dirname(path), suffix=".json")
     os.close(fd)
     try:
         with open(tmp, "w", encoding="utf-8") as f:
-            json.dump(data, f, indent=2, ensure_ascii=False)
-        shutil.move(tmp, filepath)
+            json.dump(data, f, indent=2)
+        shutil.move(tmp, path)
     finally:
         if os.path.exists(tmp):
-            try:
-                os.remove(tmp)
-            except Exception:
-                pass
+            os.remove(tmp)
 
 def save_to_datalake(data: Dict[str, Any], city: str) -> None:
+    now = datetime.now(timezone.utc)
+    date_path = now.strftime("%Y/%m/%d")
+    ts = now.strftime("%Y%m%d_%H%M%S_%f")[:-3]
+
+    filename = os.path.join(
+        DATA_LAKE_DIR,
+        date_path,
+        f"{city.replace(' ', '_')}_{ts}.json",
+    )
+
+    atomic_write_json(filename, data)
+    logger.info("Raw data saved: %s", filename)
+
+# ===========================
+# API Fetch
+# ===========================
+def fetch_weather(city: str) -> Optional[Dict[str, Any]]:
     try:
-        now = datetime.utcnow()
-        timestamp = now.strftime("%Y%m%d_%H%M%S_%f")[:-3]
-        date_dir = now.strftime("%Y/%m/%d")
-        filename = f"{DATA_LAKE_DIR}/{date_dir}/{city.replace(' ', '_')}_{timestamp}.json"
-        atomic_write_json(filename, data)
-        logger.info(f"Saved raw data for {city} to data lake: {filename}")
-    except Exception as e:
-        logger.exception(f"Failed to save data to data lake for {city}: {e}")
-
-# ---------------------------
-# Fetch and insert
-# ---------------------------
-def fetch_weather_data(city: str, retries: int = 3, backoff: float = 2.0, timeout: int = 10) -> Optional[Dict[str, Any]]:
-    params = {"q": city, "appid": API_KEY, "units": "metric"}
-    for attempt in range(1, retries + 1):
-        try:
-            resp = requests.get(BASE_URL, params=params, timeout=timeout)
-            resp.raise_for_status()
-            return resp.json()
-        except requests.exceptions.RequestException as exc:
-            if attempt == retries:
-                logger.error("Final attempt failed for %s: %s", city, exc)
-                return None
-            logger.warning("Attempt %d/%d failed for %s: %s. Retrying in %.1fs", attempt, retries, city, exc, backoff)
-            time.sleep(backoff)
-            backoff *= 2
-    return None
-
-def insert_weather_data(conn: sqlite3.Connection, data: Dict[str, Any]) -> None:
-    try:
-        cur = conn.cursor()
-        main = data.get("main", {})
-        coord = data.get("coord", {})
-        weather = data.get("weather", [{}])[0] if data.get("weather") else {}
-        wind = data.get("wind", {})
-        clouds = data.get("clouds", {})
-        sys_info = data.get("sys", {})
-
-        ts = datetime.utcnow().replace(tzinfo=timezone.utc).isoformat(timespec="milliseconds")
-
-        values_tuple = (
-            data.get("name"),
-            coord.get("lat"),
-            coord.get("lon"),
-            main.get("temp"),
-            main.get("feels_like"),
-            main.get("temp_min"),
-            main.get("temp_max"),
-            main.get("pressure"),
-            main.get("humidity"),
-            data.get("visibility"),
-            wind.get("speed"),
-            wind.get("deg"),
-            wind.get("gust"),
-            clouds.get("all"),
-            weather.get("id"),
-            weather.get("main"),
-            weather.get("description"),
-            weather.get("icon"),
-            ts,
-            sys_info.get("country"),
+        resp = requests.get(
+            BASE_URL,
+            params={"q": city, "appid": API_KEY, "units": "metric"},
+            timeout=10,
         )
+        resp.raise_for_status()
+        return resp.json()
+    except Exception as exc:
+        logger.error("API error for %s: %s", city, exc)
+        return None
 
-        # Fetch previous data to log changes
-        cur.execute("SELECT temperature, humidity, weather_description FROM weather_data WHERE city=?", (data.get("name"),))
-        prev = cur.fetchone()
-        if prev:
-            temp_change = (main.get("temp") - prev[0]) if prev[0] is not None else 0
-            humidity_change = (main.get("humidity") - prev[1]) if prev[1] is not None else 0
-            logger.info(
-                "Changes for %s: temp %+0.1f°C, humidity %+d, description %s -> %s",
-                data.get("name"),
-                temp_change,
-                humidity_change,
-                prev[2],
-                weather.get("description"),
-            )
+# ===========================
+# Insert Logic
+# ===========================
+def insert_weather(conn: sqlite3.Connection, data: Dict[str, Any]) -> None:
+    cur = conn.cursor()
 
-        # Insert or update latest table
-        cur.execute(
-            """
-            INSERT INTO weather_data
-            (city, latitude, longitude, temperature, feels_like, temp_min, temp_max,
-             pressure, humidity, visibility, wind_speed, wind_deg, wind_gust,
-             clouds, weather_id, weather_main, weather_description, weather_icon, timestamp, country)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-            ON CONFLICT(city) DO UPDATE SET
-             latitude=excluded.latitude,
-             longitude=excluded.longitude,
-             temperature=excluded.temperature,
-             feels_like=excluded.feels_like,
-             temp_min=excluded.temp_min,
-             temp_max=excluded.temp_max,
-             pressure=excluded.pressure,
-             humidity=excluded.humidity,
-             visibility=excluded.visibility,
-             wind_speed=excluded.wind_speed,
-             wind_deg=excluded.wind_deg,
-             wind_gust=excluded.wind_gust,
-             clouds=excluded.clouds,
-             weather_id=excluded.weather_id,
-             weather_main=excluded.weather_main,
-             weather_description=excluded.weather_description,
-             weather_icon=excluded.weather_icon,
-             timestamp=excluded.timestamp,
-             country=excluded.country;
-            """,
-            values_tuple,
-        )
+    main = data.get("main", {})
+    coord = data.get("coord", {})
+    weather = data.get("weather", [{}])[0]
+    wind = data.get("wind", {})
+    clouds = data.get("clouds", {})
+    sys_info = data.get("sys", {})
 
-        # Insert snapshot into history
-        cur.execute(
-            """
-            INSERT INTO weather_history
-            (city, latitude, longitude, temperature, feels_like, temp_min, temp_max,
-             pressure, humidity, visibility, wind_speed, wind_deg, wind_gust,
-             clouds, weather_id, weather_main, weather_description, weather_icon, timestamp, country)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
-            """,
-            values_tuple,
-        )
+    ts = datetime.now(timezone.utc).isoformat(timespec="milliseconds")
 
-        conn.commit()
-        logger.info("Weather data inserted/updated for %s", data.get("name"))
-    except Exception:
-        logger.exception("Failed to insert/update data for %s", data.get("name"))
-        try:
-            conn.rollback()
-        except Exception:
-            pass
+    values = (
+        data.get("name"),
+        coord.get("lat"),
+        coord.get("lon"),
+        main.get("temp"),
+        main.get("feels_like"),
+        main.get("temp_min"),
+        main.get("temp_max"),
+        main.get("pressure"),
+        main.get("humidity"),
+        data.get("visibility"),
+        wind.get("speed"),
+        wind.get("deg"),
+        wind.get("gust"),
+        clouds.get("all"),
+        weather.get("id"),
+        weather.get("main"),
+        weather.get("description"),
+        weather.get("icon"),
+        ts,
+        sys_info.get("country"),
+    )
 
-# ---------------------------
-# Processing loop
-# ---------------------------
-def process_cities_once(conn: sqlite3.Connection, cities: List[str]) -> Dict[str, int]:
-    success_count = 0
-    failure_count = 0
+    # Insert or update latest data
+    cur.execute("""
+        INSERT INTO weather_data
+        (city, latitude, longitude, temperature, feels_like, temp_min, temp_max,
+         pressure, humidity, visibility, wind_speed, wind_deg, wind_gust,
+         clouds, weather_id, weather_main, weather_description, weather_icon,
+         timestamp, country)
+        VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+        ON CONFLICT(city) DO UPDATE SET
+            latitude=excluded.latitude,
+            longitude=excluded.longitude,
+            temperature=excluded.temperature,
+            feels_like=excluded.feels_like,
+            temp_min=excluded.temp_min,
+            temp_max=excluded.temp_max,
+            pressure=excluded.pressure,
+            humidity=excluded.humidity,
+            visibility=excluded.visibility,
+            wind_speed=excluded.wind_speed,
+            wind_deg=excluded.wind_deg,
+            wind_gust=excluded.wind_gust,
+            clouds=excluded.clouds,
+            weather_id=excluded.weather_id,
+            weather_main=excluded.weather_main,
+            weather_description=excluded.weather_description,
+            weather_icon=excluded.weather_icon,
+            timestamp=excluded.timestamp,
+            country=excluded.country;
+    """, values)
+
+    # Insert snapshot into history
+    cur.execute("""
+        INSERT INTO weather_history
+        (city, latitude, longitude, temperature, feels_like, temp_min, temp_max,
+         pressure, humidity, visibility, wind_speed, wind_deg, wind_gust,
+         clouds, weather_id, weather_main, weather_description, weather_icon,
+         timestamp, country)
+        VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+    """, values)
+
+    conn.commit()
+    logger.info("Weather updated for %s", data.get("name"))
+
+# ===========================
+# Processing Loop
+# ===========================
+def process_cycle(conn: sqlite3.Connection, cities: List[str]) -> None:
     for city in cities:
         if shutdown_requested:
-            logger.info("Shutdown requested; stopping early.")
             break
         logger.info("Processing city: %s", city)
-        data = fetch_weather_data(city)
+        data = fetch_weather(city)
         if not data:
-            logger.warning("No data for %s", city)
-            failure_count += 1
             continue
-        try:
-            save_to_datalake(data, city)
-        except Exception:
-            logger.exception("Failed saving raw data for %s", city)
-        insert_weather_data(conn, data)
-        success_count += 1
+        save_to_datalake(data, city)
+        insert_weather(conn, data)
         time.sleep(1)
-    return {"success": success_count, "failure": failure_count}
 
-# ---------------------------
-# CLI helpers
-# ---------------------------
-def get_cities_from_file(filename: str) -> List[str]:
-    try:
-        with open(filename, "r", encoding="utf-8") as f:
-            return [line.strip() for line in f if line.strip()]
-    except Exception:
-        logger.exception("Failed to read cities from file: %s", filename)
-        return []
-
-# ---------------------------
-# Main
-# ---------------------------
-def main(argv: Optional[List[str]] = None) -> int:
-    parser = argparse.ArgumentParser(description="Weather Data Ingestion Pipeline")
-    parser.add_argument("--cities", nargs="+", help="List of cities to process")
-    parser.add_argument("--file", help="File containing list of cities")
-    args = parser.parse_args(argv)
+# ===========================
+# Main Loop
+# ===========================
+def main() -> None:
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--cities", nargs="+")
+    parser.add_argument("--file")
+    args = parser.parse_args()
 
     cities: List[str] = []
+
     if args.cities:
         cities.extend(args.cities)
+
     if args.file:
-        cities.extend(get_cities_from_file(args.file))
+        with open(args.file) as f:
+            cities.extend(line.strip() for line in f if line.strip())
 
     if not cities:
-        cities_input = input("Enter city names separated by commas: ").strip()
-        if not cities_input:
-            logger.error("No cities entered. Exiting.")
-            return 2
-        cities = [c.strip() for c in cities_input.split(",") if c.strip()]
+        cities = [c.strip() for c in input("Enter cities (comma-separated): ").split(",")]
 
     conn = setup_database(DB_PATH)
-    logger.info("Database initialized at %s", DB_PATH)
-    logger.info("Starting daily weather update for cities: %s", ", ".join(cities))
+    logger.info("Pipeline started for cities: %s", ", ".join(cities))
 
     try:
         while not shutdown_requested:
-            start_time = time.time()
-            logger.info("--- Starting daily update at %s ---", datetime.utcnow().isoformat())
-            counts = process_cities_once(conn, cities)
-            logger.info("Daily update results: success=%d, failures=%d", counts["success"], counts["failure"])
-            elapsed = time.time() - start_time
-            sleep_time = UPDATE_INTERVAL_SECONDS - elapsed
-            if shutdown_requested:
-                break
-            if sleep_time > 0:
-                slept = 0.0
-                while slept < sleep_time and not shutdown_requested:
-                    to_sleep = min(1.0, sleep_time - slept)
-                    time.sleep(to_sleep)
-                    slept += to_sleep
-    except Exception:
-        logger.exception("Fatal error in daily update loop")
+            logger.info("=== New ingestion cycle at %s ===",
+                        datetime.now(timezone.utc).isoformat())
+            start = time.time()
+            process_cycle(conn, cities)
+            elapsed = time.time() - start
+            sleep_time = max(0, UPDATE_INTERVAL_SECONDS - elapsed)
+            logger.info("Cycle complete. Sleeping for %.1f seconds", sleep_time)
+
+            slept = 0
+            while slept < sleep_time and not shutdown_requested:
+                time.sleep(1)
+                slept += 1
+
     finally:
-        try:
-            conn.close()
-            logger.info("Database connection closed.")
-        except Exception:
-            pass
-        logger.info("Shutdown complete.")
-    return 0
+        conn.close()
+        logger.info("Pipeline stopped cleanly")
 
 if __name__ == "__main__":
-    raise SystemExit(main())
+    main()
