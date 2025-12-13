@@ -1,0 +1,47 @@
+{
+  "coord": {
+    "lon": 32.5822,
+    "lat": 0.3163
+  },
+  "weather": [
+    {
+      "id": 500,
+      "main": "Rain",
+      "description": "light rain",
+      "icon": "10d"
+    }
+  ],
+  "base": "stations",
+  "main": {
+    "temp": 27.43,
+    "feels_like": 27.63,
+    "temp_min": 27.43,
+    "temp_max": 27.43,
+    "pressure": 1012,
+    "humidity": 47,
+    "sea_level": 1012,
+    "grnd_level": 883
+  },
+  "visibility": 10000,
+  "wind": {
+    "speed": 2.23,
+    "deg": 184,
+    "gust": 2.52
+  },
+  "rain": {
+    "1h": 0.22
+  },
+  "clouds": {
+    "all": 75
+  },
+  "dt": 1765615266,
+  "sys": {
+    "country": "UG",
+    "sunrise": 1765597252,
+    "sunset": 1765640821
+  },
+  "timezone": 10800,
+  "id": 232422,
+  "name": "Kampala",
+  "cod": 200
+}

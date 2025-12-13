@@ -1,0 +1,44 @@
+{
+  "coord": {
+    "lon": 36.7768,
+    "lat": -1.8524
+  },
+  "weather": [
+    {
+      "id": 804,
+      "main": "Clouds",
+      "description": "overcast clouds",
+      "icon": "04d"
+    }
+  ],
+  "base": "stations",
+  "main": {
+    "temp": 21.29,
+    "feels_like": 20.96,
+    "temp_min": 21.29,
+    "temp_max": 21.29,
+    "pressure": 1017,
+    "humidity": 57,
+    "sea_level": 1017,
+    "grnd_level": 837
+  },
+  "visibility": 10000,
+  "wind": {
+    "speed": 5.92,
+    "deg": 88,
+    "gust": 7.56
+  },
+  "clouds": {
+    "all": 93
+  },
+  "dt": 1764141566,
+  "sys": {
+    "country": "KE",
+    "sunrise": 1764126839,
+    "sunset": 1764170807
+  },
+  "timezone": 10800,
+  "id": 195298,
+  "name": "Kajiado",
+  "cod": 200
+}

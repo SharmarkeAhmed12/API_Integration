@@ -1,0 +1,44 @@
+{
+  "coord": {
+    "lon": 44.065,
+    "lat": 9.56
+  },
+  "weather": [
+    {
+      "id": 804,
+      "main": "Clouds",
+      "description": "overcast clouds",
+      "icon": "04d"
+    }
+  ],
+  "base": "stations",
+  "main": {
+    "temp": 19.97,
+    "feels_like": 18.88,
+    "temp_min": 19.97,
+    "temp_max": 19.97,
+    "pressure": 1017,
+    "humidity": 33,
+    "sea_level": 1017,
+    "grnd_level": 880
+  },
+  "visibility": 10000,
+  "wind": {
+    "speed": 7.86,
+    "deg": 23,
+    "gust": 7.65
+  },
+  "clouds": {
+    "all": 100
+  },
+  "dt": 1764572843,
+  "sys": {
+    "country": "SO",
+    "sunrise": 1764558286,
+    "sunset": 1764600068
+  },
+  "timezone": 10800,
+  "id": 57289,
+  "name": "Hargeisa",
+  "cod": 200
+}

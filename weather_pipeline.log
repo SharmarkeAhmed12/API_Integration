@@ -81,3 +81,290 @@
 2025-09-16 12:21:34,190 - weather_pipeline - INFO - Saved raw data for Kathmandu to data lake: datalake/raw/2025/09/16/Kathmandu_20250916_122134.json
 2025-09-16 12:21:34,193 - weather_pipeline - ERROR - Failed to insert data for Kathmandu: table weather_data has no column named pressure
 2025-09-16 12:21:35,198 - weather_pipeline - INFO - Processing complete. Success: 1, Failures: 0
+2025-11-26 10:08:38,658 - weather_pipeline - ERROR - No cities provided. Use --cities or --file. Exiting.
+2025-11-26 10:19:11,875 - weather_pipeline - INFO - Database initialized at weather_data.db
+2025-11-26 10:19:11,876 - weather_pipeline - INFO - Starting continuous polling for 5 cities every 900 seconds.
+2025-11-26 10:19:11,878 - weather_pipeline - INFO - Cities: Nairobi, Kisumu, Kajiado, Lagos, Mogadishu
+2025-11-26 10:19:11,880 - weather_pipeline - INFO - --- Starting new polling cycle at 2025-11-26T07:19:11.880509 ---
+2025-11-26 10:19:11,881 - weather_pipeline - INFO - Processing city: Nairobi
+2025-11-26 10:19:13,998 - weather_pipeline - INFO - Saved raw data for Nairobi to data lake: datalake/raw/2025/11/26/Nairobi_20251126_071913_992.json
+2025-11-26 10:19:14,003 - weather_pipeline - ERROR - Failed to insert data for Nairobi
+Traceback (most recent call last):
+  File "c:\API_Integration\Api_Ingest.py", line 184, in insert_weather_data
+    cur.execute(
+    ~~~~~~~~~~~^
+        """
+        ^^^
+    ...<27 lines>...
+        ),
+        ^^
+    )
+    ^
+sqlite3.OperationalError: table weather_data has no column named latitude
+2025-11-26 10:19:15,017 - weather_pipeline - INFO - Processing city: Kisumu
+2025-11-26 10:19:16,390 - weather_pipeline - INFO - Saved raw data for Kisumu to data lake: datalake/raw/2025/11/26/Kisumu_20251126_071916_383.json
+2025-11-26 10:19:16,392 - weather_pipeline - ERROR - Failed to insert data for Kisumu
+Traceback (most recent call last):
+  File "c:\API_Integration\Api_Ingest.py", line 184, in insert_weather_data
+    cur.execute(
+    ~~~~~~~~~~~^
+        """
+        ^^^
+    ...<27 lines>...
+        ),
+        ^^
+    )
+    ^
+sqlite3.OperationalError: table weather_data has no column named latitude
+2025-11-26 10:19:17,406 - weather_pipeline - INFO - Processing city: Kajiado
+2025-11-26 10:19:18,716 - weather_pipeline - INFO - Saved raw data for Kajiado to data lake: datalake/raw/2025/11/26/Kajiado_20251126_071918_712.json
+2025-11-26 10:19:18,719 - weather_pipeline - ERROR - Failed to insert data for Kajiado
+Traceback (most recent call last):
+  File "c:\API_Integration\Api_Ingest.py", line 184, in insert_weather_data
+    cur.execute(
+    ~~~~~~~~~~~^
+        """
+        ^^^
+    ...<27 lines>...
+        ),
+        ^^
+    )
+    ^
+sqlite3.OperationalError: table weather_data has no column named latitude
+2025-11-26 10:19:19,724 - weather_pipeline - INFO - Processing city: Lagos
+2025-11-26 10:19:21,134 - weather_pipeline - INFO - Saved raw data for Lagos to data lake: datalake/raw/2025/11/26/Lagos_20251126_071921_130.json
+2025-11-26 10:19:21,135 - weather_pipeline - ERROR - Failed to insert data for Lagos
+Traceback (most recent call last):
+  File "c:\API_Integration\Api_Ingest.py", line 184, in insert_weather_data
+    cur.execute(
+    ~~~~~~~~~~~^
+        """
+        ^^^
+    ...<27 lines>...
+        ),
+        ^^
+    )
+    ^
+sqlite3.OperationalError: table weather_data has no column named latitude
+2025-11-26 10:19:22,144 - weather_pipeline - INFO - Processing city: Mogadishu
+2025-11-26 10:19:23,623 - weather_pipeline - INFO - Saved raw data for Mogadishu to data lake: datalake/raw/2025/11/26/Mogadishu_20251126_071923_619.json
+2025-11-26 10:19:23,624 - weather_pipeline - ERROR - Failed to insert data for Mogadishu
+Traceback (most recent call last):
+  File "c:\API_Integration\Api_Ingest.py", line 184, in insert_weather_data
+    cur.execute(
+    ~~~~~~~~~~~^
+        """
+        ^^^
+    ...<27 lines>...
+        ),
+        ^^
+    )
+    ^
+sqlite3.OperationalError: table weather_data has no column named latitude
+2025-11-26 10:19:24,629 - weather_pipeline - INFO - Cycle results: success=5, failures=0
+2025-11-26 10:19:24,630 - weather_pipeline - INFO - Cycle finished in 12.75 seconds. Sleeping for 887.25 seconds.
+2025-11-26 10:34:12,944 - weather_pipeline - INFO - --- Starting new polling cycle at 2025-11-26T07:34:12.944501 ---
+2025-11-26 10:34:12,946 - weather_pipeline - INFO - Processing city: Nairobi
+2025-11-26 10:34:14,576 - weather_pipeline - INFO - Saved raw data for Nairobi to data lake: datalake/raw/2025/11/26/Nairobi_20251126_073414_570.json
+2025-11-26 10:34:14,584 - weather_pipeline - ERROR - Failed to insert data for Nairobi
+Traceback (most recent call last):
+  File "c:\API_Integration\Api_Ingest.py", line 184, in insert_weather_data
+    cur.execute(
+    ~~~~~~~~~~~^
+        """
+        ^^^
+    ...<27 lines>...
+        ),
+        ^^
+    )
+    ^
+sqlite3.OperationalError: table weather_data has no column named latitude
+2025-11-26 10:34:15,595 - weather_pipeline - INFO - Processing city: Kisumu
+2025-11-26 10:34:17,901 - weather_pipeline - INFO - Saved raw data for Kisumu to data lake: datalake/raw/2025/11/26/Kisumu_20251126_073417_895.json
+2025-11-26 10:34:17,903 - weather_pipeline - ERROR - Failed to insert data for Kisumu
+Traceback (most recent call last):
+  File "c:\API_Integration\Api_Ingest.py", line 184, in insert_weather_data
+    cur.execute(
+    ~~~~~~~~~~~^
+        """
+        ^^^
+    ...<27 lines>...
+        ),
+        ^^
+    )
+    ^
+sqlite3.OperationalError: table weather_data has no column named latitude
+2025-11-26 10:34:18,910 - weather_pipeline - INFO - Processing city: Kajiado
+2025-11-26 10:34:20,226 - weather_pipeline - INFO - Saved raw data for Kajiado to data lake: datalake/raw/2025/11/26/Kajiado_20251126_073420_219.json
+2025-11-26 10:34:20,227 - weather_pipeline - ERROR - Failed to insert data for Kajiado
+Traceback (most recent call last):
+  File "c:\API_Integration\Api_Ingest.py", line 184, in insert_weather_data
+    cur.execute(
+    ~~~~~~~~~~~^
+        """
+        ^^^
+    ...<27 lines>...
+        ),
+        ^^
+    )
+    ^
+sqlite3.OperationalError: table weather_data has no column named latitude
+2025-11-26 10:34:21,234 - weather_pipeline - INFO - Processing city: Lagos
+2025-11-26 10:34:22,486 - weather_pipeline - INFO - Saved raw data for Lagos to data lake: datalake/raw/2025/11/26/Lagos_20251126_073422_479.json
+2025-11-26 10:34:22,487 - weather_pipeline - ERROR - Failed to insert data for Lagos
+Traceback (most recent call last):
+  File "c:\API_Integration\Api_Ingest.py", line 184, in insert_weather_data
+    cur.execute(
+    ~~~~~~~~~~~^
+        """
+        ^^^
+    ...<27 lines>...
+        ),
+        ^^
+    )
+    ^
+sqlite3.OperationalError: table weather_data has no column named latitude
+2025-11-26 10:34:23,495 - weather_pipeline - INFO - Processing city: Mogadishu
+2025-11-26 10:34:24,833 - weather_pipeline - INFO - Saved raw data for Mogadishu to data lake: datalake/raw/2025/11/26/Mogadishu_20251126_073424_826.json
+2025-11-26 10:34:24,835 - weather_pipeline - ERROR - Failed to insert data for Mogadishu
+Traceback (most recent call last):
+  File "c:\API_Integration\Api_Ingest.py", line 184, in insert_weather_data
+    cur.execute(
+    ~~~~~~~~~~~^
+        """
+        ^^^
+    ...<27 lines>...
+        ),
+        ^^
+    )
+    ^
+sqlite3.OperationalError: table weather_data has no column named latitude
+2025-11-26 10:34:25,842 - weather_pipeline - INFO - Cycle results: success=5, failures=0
+2025-11-26 10:34:25,843 - weather_pipeline - INFO - Cycle finished in 12.90 seconds. Sleeping for 887.10 seconds.
+2025-11-26 11:02:01,314 - weather_pipeline - INFO - --- Starting new polling cycle at 2025-11-26T08:02:01.314468 ---
+2025-11-26 11:02:01,316 - weather_pipeline - INFO - Processing city: Nairobi
+2025-11-26 11:02:03,208 - weather_pipeline - INFO - Saved raw data for Nairobi to data lake: datalake/raw/2025/11/26/Nairobi_20251126_080203_195.json
+2025-11-26 11:02:03,220 - weather_pipeline - ERROR - Failed to insert data for Nairobi
+Traceback (most recent call last):
+  File "c:\API_Integration\Api_Ingest.py", line 184, in insert_weather_data
+    cur.execute(
+    ~~~~~~~~~~~^
+        """
+        ^^^
+    ...<27 lines>...
+        ),
+        ^^
+    )
+    ^
+sqlite3.OperationalError: table weather_data has no column named latitude
+2025-11-26 11:02:04,241 - weather_pipeline - INFO - Processing city: Kisumu
+2025-11-26 11:02:05,823 - weather_pipeline - INFO - Saved raw data for Kisumu to data lake: datalake/raw/2025/11/26/Kisumu_20251126_080205_816.json
+2025-11-26 11:02:05,825 - weather_pipeline - ERROR - Failed to insert data for Kisumu
+Traceback (most recent call last):
+  File "c:\API_Integration\Api_Ingest.py", line 184, in insert_weather_data
+    cur.execute(
+    ~~~~~~~~~~~^
+        """
+        ^^^
+    ...<27 lines>...
+        ),
+        ^^
+    )
+    ^
+sqlite3.OperationalError: table weather_data has no column named latitude
+2025-11-26 11:02:06,833 - weather_pipeline - INFO - Processing city: Kajiado
+2025-11-26 11:02:08,410 - weather_pipeline - INFO - Saved raw data for Kajiado to data lake: datalake/raw/2025/11/26/Kajiado_20251126_080208_403.json
+2025-11-26 11:02:08,412 - weather_pipeline - ERROR - Failed to insert data for Kajiado
+Traceback (most recent call last):
+  File "c:\API_Integration\Api_Ingest.py", line 184, in insert_weather_data
+    cur.execute(
+    ~~~~~~~~~~~^
+        """
+        ^^^
+    ...<27 lines>...
+        ),
+        ^^
+    )
+    ^
+sqlite3.OperationalError: table weather_data has no column named latitude
+2025-11-26 11:02:09,418 - weather_pipeline - INFO - Processing city: Lagos
+2025-11-26 11:02:11,272 - weather_pipeline - INFO - Saved raw data for Lagos to data lake: datalake/raw/2025/11/26/Lagos_20251126_080211_265.json
+2025-11-26 11:02:11,273 - weather_pipeline - ERROR - Failed to insert data for Lagos
+Traceback (most recent call last):
+  File "c:\API_Integration\Api_Ingest.py", line 184, in insert_weather_data
+    cur.execute(
+    ~~~~~~~~~~~^
+        """
+        ^^^
+    ...<27 lines>...
+        ),
+        ^^
+    )
+    ^
+sqlite3.OperationalError: table weather_data has no column named latitude
+2025-11-26 11:02:12,282 - weather_pipeline - INFO - Processing city: Mogadishu
+2025-11-26 11:02:13,899 - weather_pipeline - INFO - Saved raw data for Mogadishu to data lake: datalake/raw/2025/11/26/Mogadishu_20251126_080213_892.json
+2025-11-26 11:02:13,901 - weather_pipeline - ERROR - Failed to insert data for Mogadishu
+Traceback (most recent call last):
+  File "c:\API_Integration\Api_Ingest.py", line 184, in insert_weather_data
+    cur.execute(
+    ~~~~~~~~~~~^
+        """
+        ^^^
+    ...<27 lines>...
+        ),
+        ^^
+    )
+    ^
+sqlite3.OperationalError: table weather_data has no column named latitude
+2025-11-26 11:02:14,909 - weather_pipeline - INFO - Cycle results: success=5, failures=0
+2025-11-26 11:02:14,910 - weather_pipeline - INFO - Cycle finished in 13.60 seconds. Sleeping for 886.40 seconds.
+2025-11-26 11:22:25,627 - weather_pipeline - INFO - Database initialized at weather_data.db
+2025-11-26 11:22:25,627 - weather_pipeline - INFO - Starting daily weather update for cities: Nairobi, Mombasa
+2025-11-26 11:22:25,629 - weather_pipeline - INFO - --- Starting daily update at 2025-11-26T08:22:25.629090 ---
+2025-11-26 11:22:25,629 - weather_pipeline - INFO - Processing city: Nairobi
+2025-11-26 11:22:27,364 - weather_pipeline - INFO - Saved raw data for Nairobi to data lake: datalake/raw/2025/11/26/Nairobi_20251126_082227_353.json
+2025-11-26 11:22:27,368 - weather_pipeline - ERROR - Failed to insert/update data for Nairobi
+Traceback (most recent call last):
+  File "c:\API_Integration\Api_Ingest.py", line 210, in insert_weather_data
+    cur.execute("SELECT temperature, humidity, weather_description FROM weather_data WHERE city=?", (data.get("name"),))
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+sqlite3.OperationalError: no such column: weather_description
+2025-11-26 11:22:28,377 - weather_pipeline - INFO - Processing city: Mombasa
+2025-11-26 11:22:30,000 - weather_pipeline - INFO - Saved raw data for Mombasa to data lake: datalake/raw/2025/11/26/Mombasa_20251126_082229_994.json
+2025-11-26 11:22:30,002 - weather_pipeline - ERROR - Failed to insert/update data for Mombasa
+Traceback (most recent call last):
+  File "c:\API_Integration\Api_Ingest.py", line 210, in insert_weather_data
+    cur.execute("SELECT temperature, humidity, weather_description FROM weather_data WHERE city=?", (data.get("name"),))
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+sqlite3.OperationalError: no such column: weather_description
+2025-11-26 11:22:31,010 - weather_pipeline - INFO - Daily update results: success=2, failures=0
+2025-11-26 11:26:48,453 - weather_pipeline - INFO - Database initialized at weather_data.db
+2025-11-26 11:26:48,455 - weather_pipeline - INFO - Starting daily weather update for cities: Lagos, Tokyo
+2025-11-26 11:26:48,457 - weather_pipeline - INFO - --- Starting daily update at 2025-11-26T08:26:48.457281 ---
+2025-11-26 11:26:48,457 - weather_pipeline - INFO - Processing city: Lagos
+2025-11-26 11:26:50,386 - weather_pipeline - INFO - Saved raw data for Lagos to data lake: datalake/raw/2025/11/26/Lagos_20251126_082650_360.json
+2025-11-26 11:26:50,433 - weather_pipeline - INFO - Weather data inserted/updated for Lagos
+2025-11-26 11:26:51,434 - weather_pipeline - INFO - Processing city: Tokyo
+2025-11-26 11:26:53,034 - weather_pipeline - INFO - Saved raw data for Tokyo to data lake: datalake/raw/2025/11/26/Tokyo_20251126_082653_027.json
+2025-11-26 11:26:53,038 - weather_pipeline - INFO - Weather data inserted/updated for Tokyo
+2025-11-26 11:26:54,040 - weather_pipeline - INFO - Daily update results: success=2, failures=0
+2025-12-01 10:08:32,331 - weather_pipeline - INFO - Database initialized at weather_data.db
+2025-12-01 10:08:32,348 - weather_pipeline - INFO - Starting daily weather update for cities: Hargeisa, Lagos, Nakuru
+2025-12-01 10:08:32,352 - weather_pipeline - INFO - --- Starting daily update at 2025-12-01T07:08:32.352310 ---
+2025-12-01 10:08:32,353 - weather_pipeline - INFO - Processing city: Hargeisa
+2025-12-01 10:08:36,031 - weather_pipeline - INFO - Saved raw data for Hargeisa to data lake: datalake/raw/2025/12/01/Hargeisa_20251201_070836_025.json
+2025-12-01 10:08:36,072 - weather_pipeline - INFO - Weather data inserted/updated for Hargeisa
+2025-12-01 10:08:37,090 - weather_pipeline - INFO - Processing city: Lagos
+2025-12-01 10:08:39,826 - weather_pipeline - INFO - Saved raw data for Lagos to data lake: datalake/raw/2025/12/01/Lagos_20251201_070839_822.json
+2025-12-01 10:08:39,829 - weather_pipeline - INFO - Changes for Lagos: temp -1.9°C, humidity +6, description scattered clouds -> broken clouds
+2025-12-01 10:08:40,056 - weather_pipeline - INFO - Weather data inserted/updated for Lagos
+2025-12-01 10:08:41,057 - weather_pipeline - INFO - Processing city: Nakuru
+2025-12-01 10:08:43,353 - weather_pipeline - INFO - Saved raw data for Nakuru to data lake: datalake/raw/2025/12/01/Nakuru_20251201_070843_348.json
+2025-12-01 10:08:43,363 - weather_pipeline - INFO - Weather data inserted/updated for Nakuru
+2025-12-01 10:08:44,372 - weather_pipeline - INFO - Daily update results: success=3, failures=0
+2025-12-13 11:42:39,905 - weather_pipeline - INFO - Pipeline started for cities: Kampala, Melbourne
+2025-12-13 11:42:39,907 - weather_pipeline - INFO - === New ingestion cycle at 2025-12-13T08:42:39.906899+00:00 ===
+2025-12-13 11:42:39,907 - weather_pipeline - INFO - Processing city: Kampala
+2025-12-13 11:42:42,661 - weather_pipeline - INFO - Raw data saved: c:\API_Integration\datalake\raw\2025/12/13\Kampala_20251213_084242_650.json
+2025-12-13 11:42:42,675 - weather_pipeline - INFO - Pipeline stopped cleanly

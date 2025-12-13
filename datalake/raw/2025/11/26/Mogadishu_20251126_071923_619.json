@@ -1,0 +1,44 @@
+{
+  "coord": {
+    "lon": 45.3438,
+    "lat": 2.0371
+  },
+  "weather": [
+    {
+      "id": 801,
+      "main": "Clouds",
+      "description": "few clouds",
+      "icon": "02d"
+    }
+  ],
+  "base": "stations",
+  "main": {
+    "temp": 28.44,
+    "feels_like": 31.39,
+    "temp_min": 28.44,
+    "temp_max": 28.44,
+    "pressure": 1015,
+    "humidity": 69,
+    "sea_level": 1015,
+    "grnd_level": 1014
+  },
+  "visibility": 10000,
+  "wind": {
+    "speed": 5.36,
+    "deg": 96,
+    "gust": 5.5
+  },
+  "clouds": {
+    "all": 18
+  },
+  "dt": 1764141571,
+  "sys": {
+    "country": "SO",
+    "sunrise": 1764125140,
+    "sunset": 1764168392
+  },
+  "timezone": 10800,
+  "id": 53654,
+  "name": "Mogadishu",
+  "cod": 200
+}
