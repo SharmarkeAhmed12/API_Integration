@@ -1,21 +1,60 @@
+# =========================
 # Environment & secrets
+# =========================
 .env
 *.env
 Secrets.env
 
-# Python
+# =========================
+# Python cache & artifacts
+# =========================
 __pycache__/
 *.pyc
+*.pyo
+*.pyd
+*.egg-info/
+dist/
+build/
 
-# SQLite database
+# =========================
+# SQLite databases
+# =========================
 *.db
+*.sqlite3
 
+# =========================
 # Logs
+# =========================
 logs/
 *.log
 
-# Env file
-.env
-
-# Raw data
+# =========================
+# Raw data / datalake
+# =========================
 datalake/
+
+# =========================
+# Docker
+# =========================
+*.dockerfile
+docker-compose.override.yml
+docker-compose.override.yaml
+**/Dockerfile
+
+# =========================
+# VS Code
+# =========================
+.vscode/
+*.code-workspace
+
+# =========================
+# System files
+# =========================
+.DS_Store
+Thumbs.db
+
+# =========================
+# Optional: Python virtual environment
+# =========================
+venv/
+.envs/
