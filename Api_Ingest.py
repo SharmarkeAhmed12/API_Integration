@@ -1,12 +1,13 @@
 #!/usr/bin/env python3
 """
-Weather ingestion pipeline as Kafka producer
-- Sends data to Kafka topic `weather_raw`
-- Saves data to SQLite database and datalake
-- Supports multiple runs (historical data)
+Kafka-based weather ingestion service
+- Runs once every 24 hours
+- Cities loaded dynamically from file
+- Produces to Kafka topic `weather_raw`
+- Appends historical data to SQLite
+- Writes raw JSON to datalake
 """
 
-import argparse
 import json
 import logging
 import os
@@ -24,43 +25,69 @@ from kafka import KafkaProducer
 from dotenv import load_dotenv
 
 # ===========================
-# Environment & Configuration
+# Configuration
 # ===========================
-dotenv_path = Path(r"C:\API_Integration\Secrets.env")
-load_dotenv(dotenv_path=dotenv_path)
+INTERVAL_SECONDS = 24 * 60 * 60  # 24 hours
+
+BASE_DIR = Path(__file__).parent
+
+# Load .env from same folder as script
+dotenv_path = BASE_DIR / "Secrets.env"
+load_dotenv(dotenv_path)
 
 API_KEY = os.getenv("OPENWEATHER_API_KEY")
 if not API_KEY:
-    raise RuntimeError("OPENWEATHER_API_KEY not found in .env file")
+    raise RuntimeError("OPENWEATHER_API_KEY not found")
 
 BASE_URL = "https://api.openweathermap.org/data/2.5/weather"
 
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-DB_PATH = os.path.join(BASE_DIR, "weather_data.db")
-DATA_LAKE_DIR = os.path.join(BASE_DIR, "datalake", "raw")
+DB_PATH = BASE_DIR / "weather_data.db"
+DATA_LAKE_DIR = BASE_DIR / "datalake/raw"
 
-# Kafka configuration
+CITIES_FILE = BASE_DIR / "cities.txt"
+
 KAFKA_BOOTSTRAP = os.getenv("KAFKA_BOOTSTRAP", "localhost:9092")
 TOPIC = os.getenv("KAFKA_TOPIC", "weather_raw")
+
+# ===========================
+# Logging
+# ===========================
+LOG_FILE = BASE_DIR / "weather_pipeline.log"
+
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s | %(levelname)s | %(message)s",
+    handlers=[
+        logging.FileHandler(LOG_FILE),
+        logging.StreamHandler(sys.stdout),
+    ],
+)
+logger = logging.getLogger("weather-stream")
+
+# ===========================
+# Kafka Producer
+# ===========================
 producer = KafkaProducer(
     bootstrap_servers=KAFKA_BOOTSTRAP,
     value_serializer=lambda v: json.dumps(v).encode("utf-8"),
 )
 
 # ===========================
-# Logging
+# Utilities
 # ===========================
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-    handlers=[logging.FileHandler("weather_pipeline.log"), logging.StreamHandler(sys.stdout)],
-)
-logger = logging.getLogger("weather_pipeline")
+def load_cities(path: Path) -> List[str]:
+    if not path.exists():
+        raise RuntimeError(f"Cities file not found: {path}")
+    with open(path) as f:
+        cities = [line.strip() for line in f if line.strip()]
+    if not cities:
+        raise RuntimeError("Cities file is empty")
+    return cities
 
 # ===========================
-# Database Setup
+# Database
 # ===========================
-def setup_database(path: str) -> sqlite3.Connection:
+def setup_database(path: Path) -> sqlite3.Connection:
     conn = sqlite3.connect(path)
     cur = conn.cursor()
     cur.execute("""
@@ -121,16 +148,16 @@ def save_to_db(conn: sqlite3.Connection, data: Dict[str, Any]) -> None:
         data["weather"][0]["description"],
         data["weather"][0]["icon"],
         datetime.fromtimestamp(data["dt"], tz=timezone.utc).isoformat(),
-        data.get("sys", {}).get("country")
+        data.get("sys", {}).get("country"),
     ))
     conn.commit()
 
 # ===========================
-# Data Lake Utilities
+# Datalake
 # ===========================
-def atomic_write_json(path: str, data: Dict[str, Any]) -> None:
-    os.makedirs(os.path.dirname(path), exist_ok=True)
-    fd, tmp = tempfile.mkstemp(dir=os.path.dirname(path), suffix=".json")
+def atomic_write_json(path: Path, data: Dict[str, Any]) -> None:
+    os.makedirs(path.parent, exist_ok=True)
+    fd, tmp = tempfile.mkstemp(dir=path.parent, suffix=".json")
     os.close(fd)
     try:
         with open(tmp, "w", encoding="utf-8") as f:
@@ -144,70 +171,66 @@ def save_to_datalake(data: Dict[str, Any], city: str) -> None:
     now = datetime.now(timezone.utc)
     date_path = now.strftime("%Y/%m/%d")
     ts = now.strftime("%Y%m%d_%H%M%S_%f")[:-3]
-
-    filename = os.path.join(DATA_LAKE_DIR, date_path, f"{city.replace(' ', '_')}_{ts}.json")
+    filename = DATA_LAKE_DIR / date_path / f"{city.replace(' ', '_')}_{ts}.json"
     atomic_write_json(filename, data)
-    logger.info("Raw data saved: %s", filename)
 
 # ===========================
-# API Fetch
+# API + Kafka
 # ===========================
 def fetch_weather(city: str) -> Optional[Dict[str, Any]]:
     try:
-        resp = requests.get(BASE_URL, params={"q": city, "appid": API_KEY, "units": "metric"}, timeout=10)
-        resp.raise_for_status()
-        return resp.json()
-    except Exception as exc:
-        logger.error("API error for %s: %s", city, exc)
+        r = requests.get(
+            BASE_URL,
+            params={"q": city, "appid": API_KEY, "units": "metric"},
+            timeout=10,
+        )
+        r.raise_for_status()
+        return r.json()
+    except Exception as e:
+        logger.error("API error for %s: %s", city, e)
         return None
 
-# ===========================
-# Kafka Producer
-# ===========================
-def send_to_kafka(city: str, conn: sqlite3.Connection) -> None:
-    data = fetch_weather(city)
-    if not data:
-        return
-    # Send to Kafka
-    producer.send(TOPIC, value=data)
-    logger.info("Sent weather for %s to Kafka", city)
-    # Save to datalake
-    save_to_datalake(data, city)
-    # Save to DB (append new record)
-    save_to_db(conn, data)
+def ingest_cycle(conn: sqlite3.Connection) -> None:
+    cities = load_cities(CITIES_FILE)
+    logger.info("Starting ingestion cycle for cities: %s", ", ".join(cities))
+
+    for city in cities:
+        data = fetch_weather(city)
+        if not data:
+            continue
+
+        producer.send(TOPIC, value=data)
+        save_to_db(conn, data)
+        save_to_datalake(data, city)
+
+        logger.info("Ingested weather for %s", city)
 
 # ===========================
-# Main
+# Main Loop
 # ===========================
 def main() -> None:
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--cities", nargs="+")
-    parser.add_argument("--file")
-    args = parser.parse_args()
-
-    cities: List[str] = []
-
-    if args.cities:
-        cities.extend(args.cities)
-    if args.file:
-        with open(args.file) as f:
-            cities.extend(line.strip() for line in f if line.strip())
-    if not cities:
-        cities = [c.strip() for c in input("Enter cities (comma-separated): ").split(",")]
-
-    logger.info("Kafka Producer started for cities: %s", ", ".join(cities))
-
+    logger.info("Starting weather ingestion service (24h interval)")
     conn = setup_database(DB_PATH)
 
     try:
-        for city in cities:
-            send_to_kafka(city, conn)
-            time.sleep(1)  # avoid overwhelming API
+        while True:
+            start = time.time()
+            ingest_cycle(conn)
+
+            elapsed = time.time() - start
+            sleep_for = max(0, INTERVAL_SECONDS - elapsed)
+
+            logger.info("Cycle complete. Sleeping for %.1f seconds", sleep_for)
+            time.sleep(sleep_for)
+
+    except KeyboardInterrupt:
+        logger.info("Shutdown signal received")
+
     finally:
         conn.close()
         producer.flush()
         producer.close()
-        logger.info("Producer stopped cleanly")
+        logger.info("Service stopped cleanly")
 
 if __name__ == "__main__":
     main()
