@@ -67,10 +67,25 @@ logger = logging.getLogger("weather-stream")
 # ===========================
 # Kafka Producer
 # ===========================
-producer = KafkaProducer(
-    bootstrap_servers=KAFKA_BOOTSTRAP,
-    value_serializer=lambda v: json.dumps(v).encode("utf-8"),
-)
+def create_producer():
+    """Create Kafka producer with retry logic"""
+    for attempt in range(5):
+        try:
+            producer = KafkaProducer(
+                bootstrap_servers=KAFKA_BOOTSTRAP,
+                value_serializer=lambda v: json.dumps(v).encode("utf-8"),
+                retries=3,
+            )
+            logger.info("Kafka producer connected successfully")
+            return producer
+        except Exception as e:
+            logger.warning(f"Connection attempt {attempt + 1}/5 failed: {e}")
+            if attempt < 4:
+                time.sleep(2 ** attempt)  # exponential backoff
+            else:
+                raise
+
+producer = create_producer()
 
 # ===========================
 # Utilities
@@ -199,7 +214,19 @@ def ingest_cycle(conn: sqlite3.Connection) -> None:
         if not data:
             continue
 
-        producer.send(TOPIC, value=data)
+        # Retry sending to Kafka if topic not ready
+        for attempt in range(5):
+            try:
+                producer.send(TOPIC, value=data)
+                break
+            except Exception as e:
+                logger.warning(f"Send attempt {attempt + 1}/5 failed: {e}")
+                if attempt < 4:
+                    time.sleep(1)
+                else:
+                    logger.error(f"Failed to send {city} to Kafka after 5 attempts")
+                    raise
+        
         save_to_db(conn, data)
         save_to_datalake(data, city)
 
