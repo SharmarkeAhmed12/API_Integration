@@ -27,7 +27,6 @@ build/
 # =========================
 logs/
 *.log
-weather_pipeline.log
 
 # =========================
 # Raw data / datalake
