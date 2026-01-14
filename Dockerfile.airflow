@@ -1,0 +1,31 @@
+# Dockerfile.airflow - Recipe to build Airflow container
+FROM python:3.11-slim
+
+WORKDIR /home/airflow
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    gcc \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install Python packages (same as main app, plus Airflow)
+RUN pip install --no-cache-dir \
+    apache-airflow==2.7.3 \
+    apache-airflow-providers-apache-kafka==5.1.2 \
+    requests \
+    kafka-python \
+    python-dotenv \
+    pandas
+
+# Create logs directory
+RUN mkdir -p /home/airflow/logs /home/airflow/dags
+
+# Set Airflow home
+ENV AIRFLOW_HOME=/home/airflow
+
+# Copy application code into the image so DAGs can import it
+COPY . /home/airflow/app
+ENV PYTHONPATH=/home/airflow/app:$PYTHONPATH
+
+# Default command
+CMD ["airflow", "webserver"]

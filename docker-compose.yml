@@ -17,7 +17,7 @@ services:
     environment:
       KAFKA_BROKER_ID: 1
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
       KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
       KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
@@ -35,23 +35,76 @@ services:
       - kafka
     env_file:
       - ./Secrets.env
-    command: sh -c "sleep 10 && python setup_kafka_topics.py"
+    command: sh -c "sleep 20 && python setup_kafka_topics.py"
     networks:
       - weather-net
+  # ===== AIRFLOW SERVICES (USING SQLITE FOR NOW) =====
+  # We're delaying Postgres and using SQLite for Airflow's metadata DB.
+  # This is OK for development/testing but not recommended for production.
 
-  weather-producer:
+  # Airflow Webserver: The dashboard you visit at localhost:8080
+  airflow-webserver:
     build:
       context: .
-      dockerfile: Dockerfile
-    container_name: weather-producer
+      dockerfile: Dockerfile.airflow
+    container_name: airflow-webserver
+    environment:
+      AIRFLOW_HOME: /home/airflow
+      AIRFLOW__CORE__DAGS_FOLDER: /home/airflow/dags
+      AIRFLOW__CORE__EXECUTOR: SequentialExecutor
+      AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: sqlite:////home/airflow/airflow.db
+      AIRFLOW__CORE__LOAD_EXAMPLES: "false"
+      AIRFLOW__CORE__LOAD_DEFAULT_CONNECTIONS: "false"
     depends_on:
-      - kafka
+      kafka:
+        condition: service_started
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./dags:/home/airflow/dags
+      - ./logs:/home/airflow/logs
+      - ./datalake:/app/datalake
+      - ./db:/app/db
+      - ./Secrets.env:/home/airflow/app/Secrets.env
+      - ./airflow_db:/home/airflow
     env_file:
       - ./Secrets.env
+    command: >
+      bash -c "
+      airflow db init &&
+      airflow users create --username admin --password admin --firstname Admin --lastname User --role Admin --email admin@example.com 2>/dev/null || true &&
+      airflow webserver
+      "
+    networks:
+      - weather-net
+    restart: unless-stopped
+
+  # Airflow Scheduler: The "manager" that decides when jobs run
+  airflow-scheduler:
+    build:
+      context: .
+      dockerfile: Dockerfile.airflow
+    container_name: airflow-scheduler
+    environment:
+      AIRFLOW_HOME: /home/airflow
+      AIRFLOW__CORE__DAGS_FOLDER: /home/airflow/dags
+      AIRFLOW__CORE__EXECUTOR: SequentialExecutor
+      AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: sqlite:////home/airflow/airflow.db
+      AIRFLOW__CORE__LOAD_EXAMPLES: "false"
+      AIRFLOW__CORE__LOAD_DEFAULT_CONNECTIONS: "false"
+    depends_on:
+      - airflow-webserver
+      - kafka
     volumes:
+      - ./dags:/home/airflow/dags
+      - ./logs:/home/airflow/logs
       - ./datalake:/app/datalake
-      - ./logs:/app/logs
       - ./db:/app/db
+      - ./Secrets.env:/home/airflow/app/Secrets.env
+      - ./airflow_db:/home/airflow
+    env_file:
+      - ./Secrets.env
+    command: airflow scheduler
     networks:
       - weather-net
     restart: unless-stopped

@@ -85,7 +85,9 @@ def create_producer():
             else:
                 raise
 
-producer = create_producer()
+# NOTE: Do NOT create a producer at import time. Creating network clients
+# during module import causes side effects when Airflow imports this file.
+# We'll create a producer inside each run cycle.
 
 # ===========================
 # Utilities
@@ -209,6 +211,9 @@ def ingest_cycle(conn: sqlite3.Connection) -> None:
     cities = load_cities(CITIES_FILE)
     logger.info("Starting ingestion cycle for cities: %s", ", ".join(cities))
 
+    # create a producer for this cycle (so importing this module is side-effect free)
+    producer = create_producer()
+
     for city in cities:
         data = fetch_weather(city)
         if not data:
@@ -231,6 +236,13 @@ def ingest_cycle(conn: sqlite3.Connection) -> None:
         save_to_datalake(data, city)
 
         logger.info("Ingested weather for %s", city)
+
+    # flush and close producer for this cycle
+    try:
+        producer.flush()
+        producer.close()
+    except Exception:
+        logger.warning("Error flushing/closing Kafka producer")
 
 # ===========================
 # Main Loop
@@ -255,9 +267,26 @@ def main() -> None:
 
     finally:
         conn.close()
-        producer.flush()
-        producer.close()
         logger.info("Service stopped cleanly")
 
+
+def run_once() -> None:
+    """Run a single ingestion cycle and exit (useful for testing or Airflow)."""
+    conn = setup_database(DB_PATH)
+    try:
+        ingest_cycle(conn)
+    finally:
+        conn.close()
+
 if __name__ == "__main__":
-    main()
+    # Allow running a single cycle with `--once` for testing / Airflow integration
+    import argparse
+
+    parser = argparse.ArgumentParser(description="Run weather ingestion")
+    parser.add_argument("--once", action="store_true", help="Run a single ingestion cycle and exit")
+    args = parser.parse_args()
+
+    if args.once:
+        run_once()
+    else:
+        main()
